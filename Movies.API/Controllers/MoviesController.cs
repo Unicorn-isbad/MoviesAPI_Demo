@@ -99,5 +99,26 @@ namespace Movies.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Nije moguće prikazati rezultate, dogodila se greška!");
             }
         }
+        [HttpDelete("{id}")]
+        public ActionResult DeleteMovie(int id)
+        {
+            try
+            {
+                if (_movieRepo.GetMovieById(id) == null)
+                {
+                    throw new ArgumentNullException();
+                }
+                return Ok(_movieRepo.DeleteMovie(id));
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound("Rezultat nije pronađen!");
+            }
+
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Nije moguće prikazati rezultate, dogodila se greška!");
+            }
+        }
     }
 }
