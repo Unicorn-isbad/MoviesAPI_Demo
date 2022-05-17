@@ -13,7 +13,10 @@ namespace Movies.Data.Repositories
 
         public Movie DeleteMovie(int id)
         {
-            throw new NotImplementedException();
+            var movie = _context.Movies.FirstOrDefault(x => x.Id == id);
+            _context.Movies.Remove(movie);
+            _context.SaveChanges();
+            return movie;
         }
 
         public IEnumerable<Movie> GetAll()
@@ -28,7 +31,11 @@ namespace Movies.Data.Repositories
 
         public Movie InsertMovie(Movie movie)
         {
-            throw new NotImplementedException();
+            var movies_sorted = _context.Movies.OrderBy(key=> key.Id);
+            movie.Id = movies_sorted.Last().Id + 1;
+            _context.Movies.Add(movie);
+            _context.SaveChanges();
+            return movie;
         }
 
         public IEnumerable<Movie> QuerryStringFilter(string s, string orderby, int per_page)
@@ -38,7 +45,12 @@ namespace Movies.Data.Repositories
 
         public Movie UpdateMovie(Movie movie)
         {
-            throw new NotImplementedException();
+            var searchMovie = GetMovieById(movie.Id);
+            searchMovie.Title = movie.Title;
+            searchMovie.Genre = movie.Genre;
+            searchMovie.ReleaseYear = movie.ReleaseYear;         
+            _context.SaveChanges();
+            return movie;
         }
     }
 }

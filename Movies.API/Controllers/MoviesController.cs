@@ -36,13 +36,67 @@ namespace Movies.API.Controllers
                 var movie = _movieRepo.GetMovieById(id);
                 if (movie == null)
                 {
-                    return NotFound(new { msg = "Rezultat nije pronađen!" });
+                    throw new ArgumentNullException();
                 }
                 else return Ok(movie);
             }
+            catch (ArgumentNullException error)
+            {
+                return NotFound("Rezultat nije pronađen!");
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Nije moguće prikazati rezultate, dogodila se greška!");
+            }
+        }
+        [HttpPost]
+        public ActionResult PostMovie(Movie new_movie)
+        {
+
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                _movieRepo.InsertMovie(new_movie);
+                return Ok("Zapis je kreiran.");
+            }
             catch (Exception error)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { msg = "Nije moguće prikazati rezultate, dogodila se greška!" });
+                return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
+            }
+        }
+        [HttpPut("{id}")]
+        public ActionResult UpdateMovie(int id, Movie update_movie)
+        {
+            try
+            {
+                if (update_movie.Id != id)
+                {
+                    throw new BadHttpRequestException("Parametri Id se ne poklapaju!");
+                }
+                if (!ModelState.IsValid)
+                {
+                    throw new BadHttpRequestException("Podaci nisu validni");
+                }
+                if (_movieRepo.GetMovieById(id) == null)
+                {
+                    throw new ArgumentNullException();
+                }
+                return Ok(_movieRepo.UpdateMovie(update_movie));
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound("Rezultat nije pronađen!");
+            }
+            catch (BadHttpRequestException error)
+            {
+                return BadRequest(error.Message);
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Nije moguće prikazati rezultate, dogodila se greška!");
             }
         }
     }
